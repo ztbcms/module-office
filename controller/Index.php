@@ -13,6 +13,8 @@ use app\office\service\ExcelService;
 use app\office\service\filter\common\DateFilter;
 use app\office\service\filter\demo\GoodsFilter;
 use app\office\service\filter\ExcelRowFilter;
+use app\office\service\Import\DemoImportTemplate;
+use think\facade\Filesystem;
 use think\facade\View;
 
 class Index extends AdminController
@@ -22,6 +24,25 @@ class Index extends AdminController
         return View::fetch('index');
     }
 
+    /**
+     * xls 导入
+     * @return array|string
+     */
+    function importXls()
+    {
+        $filePath = request()->param('filepath');
+        try {
+            $excelImportService = new DemoImportTemplate(Filesystem::disk('ztbcms')->path('/').$filePath);
+            return self::makeJsonReturn(true, $excelImportService->getData());
+        } catch (\Throwable $exception) {
+            return self::makeJsonReturn(false, [], $exception->getMessage());
+        }
+    }
+
+    /**
+     * xls导出
+     * @return array|string
+     */
     function exportXls()
     {
         $fileName = '';
@@ -49,7 +70,7 @@ class Index extends AdminController
         ];
         $ex = new ExcelService($fileName, $fileHeader, $exportData);
         try {
-            return self::createReturn(true, $ex->save());
+            return self::makeJsonReturn(true, $ex->save());
         } catch (\Throwable $exception) {
             return $exception->getMessage();
         }

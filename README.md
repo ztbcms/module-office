@@ -1,7 +1,10 @@
 ### 文档管理
 
 #### 依赖
-**安装composer** `composer require phpoffice/phpspreadsheet `
+
+**Excel安装composer** `composer require phpoffice/phpspreadsheet`
+
+**Word安装composer** `composer require phpoffice/phpword`
 
 #### Excel 导出
 - 初始化
@@ -147,3 +150,7 @@ class DemoImportTemplate extends ExcelImportService
 
 ##### 0218
 1. Excel 导出：行过滤、值过滤
+
+##### 0227
+1. Word 替换模板 
+2. Word 创建自定义内容

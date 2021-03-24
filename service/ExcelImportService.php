@@ -44,7 +44,7 @@ class ExcelImportService extends BaseService
     {
         $cells = $this->sheet->getCellCollection();
         $currentRow = $cells->getCurrentRow();
-        $currentColumn = $this->col2Int($cells->getCurrentColumn());
+        $currentColumn = $this->col2Int($cells->getCurrentColumn()) + 1;
         if ($currentRow < $this->startRow) {
             //如果规定列数大于读取的列数，则返回错误
             $this->setError('gets the number of rows less than the start-row');

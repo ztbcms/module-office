@@ -7,6 +7,7 @@
 **Word安装composer** `composer require phpoffice/phpword`
 
 #### Excel 导出
+
 - 初始化
 
 ```php
@@ -16,7 +17,7 @@ $ex = new ExcelService($fileName, $fileHeader, $exportData);
 
 $fileName： 字符串 导出文件名称，为空则默认 按照时间格式 Y-m-d H:i
 
-$fileHeader：数组 数据标题头显示  例如：["订单号", "订单总价", "订单商品", "下单时间"]
+$fileHeader：数组 数据标题头显示 例如：["订单号", "订单总价", "订单商品", "下单时间"]
 
 $exportData：数组 二维数据，可以是普通数组对象，也可以是相应的过滤器
 
@@ -48,6 +49,7 @@ $exportData：数组 二维数据，可以是普通数组对象，也可以是�
 - 行过滤器
 
 定义：
+
 ```php 
 new ExcelRowFilter(
                 [
@@ -58,12 +60,15 @@ new ExcelRowFilter(
                 ], 3
             )
 ```
+
 data：第一个参数一定是array格式
 
 row：第二参数默认是1，这个代表整个记录占用行数，如果记录中含有类似商品这样需要多行显示的数据，则需要设置。
+
 - 值过滤器
 
 定义：
+
 ```
 new GoodsFilter(['hello', 'world', 'excel'], 3)
 ```
@@ -103,9 +108,7 @@ class DemoImportTemplate extends ExcelImportService
 }
 ```
 
-- 列过滤
-在我们导入数据过程中，会有一些数据格式问题（例如日期，空格、换行）这些都是肉眼看不到，到时会在导入后对数据计算处理造成影响。
-在keys数组中，使用 `ExcelColumnFilter` 对象最为key 他构造函数有两个参数，
+- 列过滤 在我们导入数据过程中，会有一些数据格式问题（例如日期，空格、换行）这些都是肉眼看不到，到时会在导入后对数据计算处理造成影响。 在keys数组中，使用 `ExcelColumnFilter` 对象最为key 他构造函数有两个参数，
 
     - key 代表这个列关键字，可以字符串定义key相同
 
@@ -145,12 +148,21 @@ class DemoImportTemplate extends ExcelImportService
 
 #### 更新日志
 
+##### 0324
+
+1. 优化 Word 替换模板
+2. 优化 Word 创建自定义内容
+
+##### 0227
+
+1. Word 替换模板
+2. Word 创建自定义内容
+
 ##### 0219
+
 1. Excel 导入：列过滤，合并单元
 
 ##### 0218
+
 1. Excel 导出：行过滤、值过滤
 
-##### 0227
-1. Word 替换模板 
-2. Word 创建自定义内容

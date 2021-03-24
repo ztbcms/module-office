@@ -2,7 +2,7 @@
     <div id="app" style="padding: 8px;" v-cloak>
         <div>
             <el-card>
-                <h3>导出示例</h3>
+                <h3>xls示例</h3>
                 <div>
                     <el-button @click="exportEvent" type="primary">点击导出Xls</el-button>
                 </div>
@@ -24,6 +24,17 @@
                     </div>
                 </div>
             </el-card>
+            <div style="margin-top:20px;">
+                <el-card>
+                    <h3>word示例</h3>
+                    <div>
+                        <el-button @click="wordReplaceEvent" type="primary">word 内容替换</el-button>
+                    </div>
+                    <div style="margin-top: 10px">
+                        <el-button @click="wordCreateEvent" type="primary">创建 word</el-button>
+                    </div>
+                </el-card>
+            </div>
         </div>
     </div>
     <script>
@@ -35,6 +46,22 @@
                     import_result: ""
                 },
                 methods: {
+                    wordCreateEvent: function () {
+                        this.httpGet("{:api_url('office/word/createWord')}", {}, function (res) {
+                            console.log(res)
+                            if (res.status) {
+                                location.href = res.data.file_url
+                            }
+                        })
+                    },
+                    wordReplaceEvent: function () {
+                        this.httpGet("{:api_url('office/word/replaceWord')}", {}, function (res) {
+                            console.log(res)
+                            if (res.status) {
+                                location.href = res.data.file_url
+                            }
+                        })
+                    },
                     importFile: function () {
                         if (!this.select_file.filepath) {
                             this.$message.error('请选择导入文件');

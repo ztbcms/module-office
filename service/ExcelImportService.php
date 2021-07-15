@@ -6,13 +6,18 @@
  * Time: 16:24.
  */
 
+declare(strict_types=1);
+
 namespace app\office\service;
 
 
 use app\common\service\BaseService;
+use app\office\model\ImportRecord;
 use app\office\service\filter\ExcelColumnFilter;
 use app\office\service\filter\ExcelValueFilter;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use Exception;
+use Throwable;
 
 class ExcelImportService extends BaseService
 {
@@ -24,6 +29,7 @@ class ExcelImportService extends BaseService
 
     protected $spreadsheet;
     protected $sheet;
+    protected $filePath;
 
 
     /**
@@ -33,27 +39,52 @@ class ExcelImportService extends BaseService
     public function __construct(string $filePath)
     {
         $this->spreadsheet = IOFactory::load($filePath);
+        $this->filePath = $filePath;
         $this->sheet = $this->spreadsheet->getActiveSheet();
+    }
+
+    public function importRecord($callback)
+    {
+        $status = $callback($this->getData());
+        $data_md5 = md5(json_encode($this->getData()));
+        $file_path = $this->filePath;
+        return ImportRecord::create([
+            'file_path' => $file_path,
+            'data_md5'  => $data_md5,
+            'status'    => $status
+        ]);
+    }
+
+    /**
+     * @return array
+     * @throws Throwable
+     */
+    public function getData(): array
+    {
+        if (empty($this->data)) {
+            return $this->importData();
+        }
+        return $this->data;
     }
 
     /**
      * 导入数据处理
-     * @throws \Throwable
+     * @throws Throwable
      */
-    public function importData()
+    private function importData(): array
     {
         $cells = $this->sheet->getCellCollection();
         $currentRow = $cells->getCurrentRow();
         $currentColumn = $this->col2Int($cells->getCurrentColumn()) + 1;
         if ($currentRow < $this->startRow) {
-            //如果规定列数大于读取的列数，则返回错误
+            //如果规定行数大于读取的行数，则返回错误
             $this->setError('gets the number of rows less than the start-row');
-            throw new \Exception($this->getError());
+            throw new Exception($this->getError());
         }
         if ($this->columnCount > $currentColumn) {
             //如果规定列数大于读取的列数，则返回错误
             $this->setError('need column not enough');
-            throw new \Exception($this->getError());
+            throw new Exception($this->getError());
         }
         if ($this->columnCount != 0) {
             $currentColumn = $this->columnCount;
@@ -76,11 +107,13 @@ class ExcelImportService extends BaseService
                     if ($this->keys[$j] instanceof ExcelColumnFilter) {
                         $key = $this->keys[$j]->key;
                         //如果有过滤器，则使用过滤器
-                        if ($this->keys[$j]->filter && class_exists($this->keys[$j]->filter)) {
+                        if ($this->keys[$j]->filter && class_exists((string) $this->keys[$j]->filter)) {
                             $filterClass = $this->keys[$j]->filter;
                             //获取过滤器的值
                             $filter = new $filterClass($value);
-                            $filter instanceof ExcelValueFilter ? $value = $filter->getFilterValue() : null;
+                            if ($filter instanceof ExcelValueFilter) {
+                                $value = $filter->getFilterValue();
+                            }
                         }
                         $itemData[$key] = $value;
                     } else {
@@ -101,7 +134,7 @@ class ExcelImportService extends BaseService
      * @param $i
      * @return string
      */
-    private function getChar($i)
+    private function getChar($i): string
     {
         $y = ($i / 26);
         if ($y >= 1) {
@@ -112,28 +145,17 @@ class ExcelImportService extends BaseService
         }
     }
 
-    function col2Int(string $str)
+    private function col2Int(string $str): int
     {
         $num = 0;
         $strArr = str_split($str, 1);
-        $lenght = count($strArr);
+        $length = count($strArr);
         foreach ($strArr as $k => $v) {
-            $num += ((ord($v) - ord('A') + 1) * pow(26, $lenght - $k - 1));
+            $num += ((ord($v) - ord('A') + 1) * pow(26, $length - $k - 1));
         }
-        return $num - 1;
+        return (int) $num - 1;
     }
 
-    /**
-     * @return array
-     * @throws \Throwable
-     */
-    public function getData(): array
-    {
-        if (empty($this->data)) {
-            return $this->importData();
-        }
-        return $this->data;
-    }
 
     /**
      * @param  array  $data

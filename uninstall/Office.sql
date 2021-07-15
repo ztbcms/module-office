@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS `cms_office_import_record`;

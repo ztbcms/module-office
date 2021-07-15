@@ -174,11 +174,12 @@ class ExcelService extends BaseService
     }
 
     /**
+     * @param  bool  $is_download
      * @param  string  $fileType
      * @return string[]
      * @throws \Throwable
      */
-    public function save($fileType = 'xls')
+    public function save($is_download = false, $fileType = 'xls')
     {
         if (!$this->fileName) {
             //如果没有传文件名称，默认
@@ -199,9 +200,13 @@ class ExcelService extends BaseService
             unlink($saveTempPath.$fileName);
         }
         $writer->save($saveTempPath.$fileName);
-        return [
-            'url' => $fileUrl.$fileName
-        ];
+        if($is_download){
+            return redirect($fileUrl.$fileName);
+        }else{
+            return [
+                'url' => $fileUrl.$fileName
+            ];
+        }
     }
 
 
